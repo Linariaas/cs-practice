@@ -1,5 +1,6 @@
 def parse_record(line: str) -> dict:
-    """Разбирает одну запись журнала."""
+    """Разбирает строку формата город;температура;дата."""
+
     parts = line.split(";")
 
     if len(parts) != 3:
@@ -16,7 +17,7 @@ def parse_record(line: str) -> dict:
         raise ValueError("Не указана дата")
 
     try:
-        temperature = float(temp_text)
+        temperature = float(temp_text.replace(",", "."))
     except ValueError:
         raise ValueError("Температура должна быть числом")
 
@@ -28,7 +29,8 @@ def parse_record(line: str) -> dict:
 
 
 def read_valid(lines: list[str]) -> list[dict]:
-    """Возвращает корректные записи, пропуская пустые и ошибочные."""
+    """Возвращает корректные записи, пропуская пустые и ошибочные строки."""
+
     records = []
 
     for line in lines:
@@ -46,7 +48,8 @@ def read_valid(lines: list[str]) -> list[dict]:
 
 
 def average_by_city(records: list[dict]) -> dict:
-    """Считает среднюю температуру по каждому городу."""
+    """Считает среднюю температуру каждого города с округлением до десятых."""
+
     totals = {}
     counts = {}
 
@@ -66,7 +69,10 @@ def average_by_city(records: list[dict]) -> dict:
 
 
 def warmest_city(records: list[dict]) -> str:
-    """Находит город с самой высокой средней температурой."""
+    """Возвращает город с самой высокой средней температурой.
+    При равенстве выбирает первый по алфавиту.
+    """
+
     averages = average_by_city(records)
 
     if not averages:
