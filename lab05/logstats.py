@@ -41,3 +41,49 @@ def count_levels(lines) -> dict:
 
     return counts
 
+def top_errors(lines, n: int) -> list:
+    """Возвращает n самых частых сообщений уровня ERROR."""
+    error_counts = {}
+
+    for line in lines:
+        if not line.strip():
+            continue
+
+        try:
+            event = parse_event(line)
+        except ValueError:
+            continue
+
+        if event["level"] == "ERROR":
+            message = event["message"]
+            error_counts[message] = (
+                error_counts.get(message, 0) + 1
+            )
+
+    sorted_errors = sorted(
+        error_counts.items(),
+        key=lambda item: (-item[1], item[0]),
+    )
+
+    return [
+        [message, count]
+        for message, count in sorted_errors[:n]
+    ]
+
+def format_report(counts: dict, errors: list) -> str:
+    """Формирует текстовый отчёт по журналу."""
+    lines = [
+        "Отчёт по журналу",
+        "",
+    ]
+
+    for level in sorted(counts):
+        lines.append(f"{level}: {counts[level]}")
+
+    lines.append("")
+    lines.append("Частые ошибки:")
+
+    for message, count in errors:
+        lines.append(f"- {message} - {count}")
+
+    return "\n".join(lines) + "\n"
